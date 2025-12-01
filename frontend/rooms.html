@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Add Rooms</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    /* General Reset */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background: #f4f7f8;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px;
+    }
+
+    h2 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    form {
+        background: #fff;
+        padding: 25px 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+        margin-bottom: 40px;
+        transition: transform 0.2s;
+    }
+
+    form:hover {
+        transform: scale(1.02);
+    }
+
+    input {
+        margin-bottom: 15px;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.2s;
+    }
+
+    input:focus {
+        border-color: #4CAF50;
+        outline: none;
+    }
+
+    button {
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background-color: #4CAF50;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    table {
+        width: 80%;
+        max-width: 600px;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+        padding: 12px 15px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #4CAF50;
+        color: #fff;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+</style>
+</head>
+<body>
+<h2>Add Room</h2>
+<form id="roomForm">
+    <input type="text" id="name" placeholder="Room Name" required>
+    <input type="number" id="capacity" placeholder="Capacity" required>
+    <button type="submit">Add Room</button>
+</form>
+
+<h2>All Rooms</h2>
+<table id="roomsTable">
+    <thead>
+        <tr><th>ID</th><th>Name</th><th>Capacity</th></tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script src="script.js"></script>
+<script>
+const formRm = document.getElementById('roomForm');
+const tableRm = document.querySelector('#roomsTable tbody');
+
+async function loadRooms() {
+    const rooms = await getRooms();
+    tableRm.innerHTML = '';
+    rooms.forEach(r => {
+        tableRm.innerHTML += `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.capacity}</td></tr>`;
+    });
+}
+
+formRm.addEventListener('submit', async e => {
+    e.preventDefault();
+    await addRoom(document.getElementById('name').value, document.getElementById('capacity').value);
+    formRm.reset();
+    loadRooms();
+});
+
+loadRooms();
+</script>
+</body>
+</html>

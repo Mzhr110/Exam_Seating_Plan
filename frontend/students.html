@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Add Students</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    /* General Reset */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background: #f4f7f8;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px;
+    }
+
+    h2 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    form {
+        background: #fff;
+        padding: 25px 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+        margin-bottom: 40px;
+        transition: transform 0.2s;
+    }
+
+    form:hover {
+        transform: scale(1.02);
+    }
+
+    input {
+        margin-bottom: 15px;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.2s;
+    }
+
+    input:focus {
+        border-color: #007BFF;
+        outline: none;
+    }
+
+    button {
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background-color: #007BFF;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    table {
+        width: 80%;
+        max-width: 600px;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+        padding: 12px 15px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #007BFF;
+        color: #fff;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* Responsive Table */
+    @media(max-width: 600px){
+        table, thead, tbody, th, td, tr {
+            display: block;
+        }
+
+        th {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+
+        td {
+            border: none;
+            position: relative;
+            padding-left: 50%;
+            margin-bottom: 12px;
+        }
+
+        td:before {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 45%;
+            padding-right: 10px;
+            white-space: nowrap;
+            font-weight: bold;
+            content: attr(data-label);
+        }
+    }
+</style>
+</head>
+<body>
+<h2>Add Student</h2>
+<form id="studentForm">
+    <input type="text" id="name" placeholder="Student Name" required>
+    <input type="text" id="roll_no" placeholder="Roll Number" required>
+    <button type="submit">Add Student</button>
+</form>
+
+<h2>All Students</h2>
+<table id="studentsTable">
+    <thead>
+        <tr><th>ID</th><th>Name</th><th>Roll No</th></tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script src="script.js"></script>
+<script>
+const form = document.getElementById('studentForm');
+const tableBody = document.querySelector('#studentsTable tbody');
+
+async function loadStudents(){
+    const students = await getStudents();
+    tableBody.innerHTML='';
+    students.forEach(s => { 
+        tableBody.innerHTML += `<tr>
+            <td data-label="ID">${s.id}</td>
+            <td data-label="Name">${s.name}</td>
+            <td data-label="Roll No">${s.roll_no}</td>
+        </tr>`; 
+    });
+}
+
+form.addEventListener('submit', async e=>{
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const roll_no = document.getElementById('roll_no').value;
+    await addStudent(name, roll_no);
+    form.reset();
+    loadStudents();
+});
+
+loadStudents();
+</script>
+</body>
+</html>

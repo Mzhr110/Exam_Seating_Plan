@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Seating Plan</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.room-container {
+    max-width: 900px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+.room-header {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+.seat-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+.seat-table th, .seat-table td {
+    border: 1px solid #333;
+    padding: 8px;
+}
+.seat {
+    width: 120px;
+    height: 60px;
+    font-size: 12px;
+}
+.seat.yellow { background: yellow; }
+.seat.red { background: red; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="room-container">
+    <div class="room-header">
+        <div>Seating Plan - Room CR-207</div>
+        <div>White Board</div>
+        <div>Thursday, 6 November 2025</div>
+    </div>
+
+    <table class="seat-table" id="seatTable">
+        <!-- Seats will be dynamically inserted -->
+    </table>
+
+    <div id="summary" style="margin-top:20px;"></div>
+</div>
+
+<script src="script.js"></script>
+<script>
+async function loadSeatingLayout() {
+    const seating = await getSeating();
+    console.log('Seating data:', seating); // debug
+
+    const table = document.getElementById('seatTable');
+    table.innerHTML = '';
+
+    const rows = 6;
+    const cols = 8;
+    let index = 0;
+
+    for(let r=0; r<rows; r++){
+        const tr = document.createElement('tr');
+        for(let c=0; c<cols; c++){
+            const td = document.createElement('td');
+            td.classList.add('seat');
+
+            if(index < seating.length){
+                const s = seating[index];
+                console.log('Student:', s.student); // debug
+
+                td.innerHTML = `
+                    ${s.student.name}<br>
+                    ${s.student.roll_no}<br>
+                    ${s.student.section || ''}
+                `;
+                td.classList.add('yellow');
+
+                // Only add delete button if s.student.id exists
+                if(s.student.id){
+                    const btn = document.createElement('button');
+                    btn.innerText = 'Delete';
+                    btn.classList.add('deleteSeatBtn');
+                    btn.addEventListener('click', async () => {
+                        await deleteSeating(s.student.id);
+                        loadSeatingLayout();
+                    });
+                    td.appendChild(document.createElement('br'));
+                    td.appendChild(btn);
+                }
+            } else {
+                td.innerHTML = '0';
+            }
+
+            if(index % 7 === 6) td.classList.replace('yellow','red');
+
+            tr.appendChild(td);
+            index++;
+        }
+        table.appendChild(tr);
+    }
+
+    // Summary
+    const summaryDiv = document.getElementById('summary');
+    const sections = {};
+    seating.forEach(s=>{
+        sections[s.student.section] = (sections[s.student.section] || 0) + 1;
+    });
+    summaryDiv.innerHTML = Object.entries(sections).map(([sec,count])=>`${sec}: ${count}`).join(' | ');
+}
+
+// DELETE API
+async function deleteSeating(studentId){
+    try {
+        const res = await fetch(`http://localhost:3000/api/seating/${studentId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if(res.status !== 200) alert('Delete error: ' + (data.error || 'Unknown'));
+        else alert(data.message);
+    } catch(err){
+        console.error('Delete seating error:', err);
+    }
+}
+
+
+loadSeatingLayout();
+</script>
+
+</body>
+</html>
